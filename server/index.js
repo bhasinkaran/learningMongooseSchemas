@@ -37,8 +37,7 @@ if (!isDev && cluster.isMaster) {
   // Priority serve any static files.
   app.use(express.static(path.resolve(__dirname, '../react-ui/build')));
 
-  const userRouter=require('./routes/users')
-  app.use('/users', userRouter)
+  
 
   // Answer API requests.
   app.get('/api', function (req, res) {
@@ -46,10 +45,21 @@ if (!isDev && cluster.isMaster) {
     res.send('{"message":"Hello from the custom server!"}');
   });
 
+  const userRouter=require('./routes/users');
+  var bodyParser = require('body-parser')
+  app.use(bodyParser.urlencoded({
+    extended: false
+    }))
+  app.use(bodyParser.json())
+  app.use('/users', userRouter);
+
+  
   // All remaining requests return the React app, so it can handle routing.
   app.get('*', function(request, response) {
     response.sendFile(path.resolve(__dirname, '../react-ui/build', 'index.html'));
   });
+
+  
 
   app.listen(PORT, function () {
     console.error(`Node ${isDev ? 'dev server' : 'cluster worker '+process.pid}: listening on port ${PORT}`);
